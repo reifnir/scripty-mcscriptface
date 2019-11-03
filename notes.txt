@@ -1,0 +1,87 @@
+ps credentials inline
+	$username = "xxxx"
+	$pw = ConvertTo-SecureString "yyyy" -AsPlainText -Force
+	$creds = New-Object System.Management.Automation.PSCredential ("dm27cx6", $pw)
+
+
+disable password policy
+	manual (local computer policy -> Computer Configuration -> Windows Settings -> Security Settings -> Account Policies -> Password Policy)
+
+set administrator to vagrant:vagrant
+	$admin=[adsi]"WinNT://./Administrator,user"
+	$admin.psbase.rename("vagrant")
+	$admin.SetPassword("vagrant")
+	$admin.UserFlags.value = $admin.UserFlags.value -bor 0x10000
+	$admin.CommitChanges()
+
+configure winrm for remote authentication
+	winrm set winrm/config/client/auth '@{Basic="true"}'
+	winrm set winrm/config/service/auth '@{Basic="true"}'
+	winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+
+allow rdc
+	$obj = Get-WmiObject -Class "Win32_TerminalServiceSetting" -Namespace root\cimv2\terminalservices
+	$obj.SetAllowTsConnections(1,1)
+
+disable firewall
+	netsh advfirewall set allprofiles state off
+
+shrink page file
+	$System = GWMI Win32_ComputerSystem -EnableAllPrivileges
+	$System.AutomaticManagedPagefile = $False
+	$System.Put()
+
+	$CurrentPageFile = gwmi -query "select * from Win32_PageFileSetting where name='c:\\pagefile.sys'"
+	$CurrentPageFile.InitialSize = 512
+	$CurrentPageFile.MaximumSize = 512
+	$CurrentPageFile.Put()
+
+set powershell execution policy
+	Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+
+	
+----prepare to make vagrant image----
+	
+Cleanup WinSXS update debris
+	Dism.exe /online /Cleanup-Image /StartComponentCleanup /ResetBase
+
+Additional disk cleanup
+	Add-WindowsFeature -Name Desktop-Experience
+
+C:\Windows\System32\cleanmgr.exe /d c:
+
+First we will remove (not uninstall yet) the features that are currently enabled that we do not need:
+	@('Desktop-Experience','InkAndHandwritingServices','Server-Media-Foundation','Powershell-ISE') | Remove-WindowsFeature
+
+Remove every feature that is available, but not installed
+	Get-WindowsFeature | ? { $_.InstallState -eq 'Available' } | Uninstall-WindowsFeature -Remove
+
+Defragment the drive
+	Optimize-Volume -DriveLetter C
+
+Purge any hidden data
+	wget http://download.sysinternals.com/files/SDelete.zip -OutFile sdelete.zip
+	[System.Reflection.Assembly]::LoadWithPartialName("System.IO.Compression.FileSystem")
+	[System.IO.Compression.ZipFile]::ExtractToDirectory("sdelete.zip", ".") 
+	./sdelete.exe -z c:
+
+Shutdown machine
+	Stop-Computer
+
+----in host machine...----
+export the virtualbox vm
+	vboxmanage export win2012r2 -o box.ovf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
