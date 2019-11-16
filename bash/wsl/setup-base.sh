@@ -1,4 +1,7 @@
 #!/bin/bash
+MY_GIT_EMAIL="jim.andreasen@reifnir.com"
+MY_GIT_NAME="Jim Andreasen"
+
 echo "Adding Azure RPM Repo..."
 sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 sudo sh -c 'echo -e "[azure-cli]
@@ -63,5 +66,10 @@ echo "Upgrade all RPM packages..."
 sudo dnf updateinfo
 sudo dnf check-update
 sudo dnf upgrade -y
+
+echo "Initialize Git properties"
+git config --global user.email "$MY_GIT_EMAIL"
+git config --global user.name "$MY_GIT_NAME"
+
 
 echo "Make soft links to my Windows profile directories..."
