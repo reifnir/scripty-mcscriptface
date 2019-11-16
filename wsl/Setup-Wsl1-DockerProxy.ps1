@@ -1,8 +1,3 @@
-$DISTRO_LOCATION="https://aka.ms/wsl-debian-gnulinux"
-
-Invoke-WebRequest -Uri $DISTRO_LOCATION -OutFile .\distro.appx -UseBasicParsing
-
-Add-AppxPackage .\distro.appx
 
 $dockerProxyName = "wsl-docker-proxy"
 $existingContainer=$(docker ps --filter name=$dockerProxyName -q)
