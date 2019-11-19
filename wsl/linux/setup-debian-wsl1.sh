@@ -2,10 +2,11 @@
 MY_GIT_EMAIL="jim.andreasen@reifnir.com"
 MY_GIT_NAME="Jim Andreasen"
 MY_WINDOWS_USERNAME="reifn"
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+sh "$SCRIPT_DIR/apt-install-kbra-ca-certs.sh"
 sh "$SCRIPT_DIR/apt-install-azure-cli.sh"
-sh "$SCRIPT_DIR/apt-install-kubect-cli.sh"
+sh "$SCRIPT_DIR/apt-install-kubernetes-cli.sh"
 sh "$SCRIPT_DIR/apt-install-docker.sh"
 sh "$SCRIPT_DIR/install-gofish.sh"
 
@@ -14,14 +15,16 @@ gofish install helm
 echo "Install all the things..."
 sudo apt install -y \
     python3 \
-    python3-pip
+    python3-pip \
+    git
 
 sudo apt update
 sudo apt upgrade -y
 
+
 # Current user only. Don't sudo!
-echo "pip3 installed packages..."
-pip3 install awscli --upgrade --user
+#echo "pip3 installed packages..."
+#pip3 install awscli --upgrade --user
 
 echo "Initialize Git properties"
 git config --global user.email "$MY_GIT_EMAIL"

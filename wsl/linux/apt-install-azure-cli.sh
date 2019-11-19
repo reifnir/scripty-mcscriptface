@@ -1,6 +1,13 @@
 # Get packages needed for the Azure-CLI install process
 sudo apt-get update
-sudo apt-get install ca-certificates curl lsb-release gnupg -y
+sudo apt-get install -y \
+    ca-certificates \
+    curl \
+    lsb-release \
+    gnupg \
+    apt-transport-https
+
+
 #apt-transport-https 
 # Download and install the Microsoft signing key
 curl -sL https://packages.microsoft.com/keys/microsoft.asc | 
