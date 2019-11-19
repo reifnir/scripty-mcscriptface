@@ -1,4 +1,3 @@
-
 $dockerProxyName = "wsl-docker-proxy"
 $existingContainer=$(docker ps --filter name=$dockerProxyName -q)
 if ($existingContainer) {
