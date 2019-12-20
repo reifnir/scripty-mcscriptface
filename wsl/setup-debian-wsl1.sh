@@ -48,7 +48,7 @@ function install_ca_certificates {
 }
 
 function install_keys_and_package_repos {
-    # Add the Azure CLI software repo...
+    # Add the Microsoft signing key (for Azure CLI and Azure Functions)...
     curl -sL https://packages.microsoft.com/keys/microsoft.asc | 
         gpg --dearmor | 
         sudo tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null #azure-cli
@@ -56,6 +56,8 @@ function install_keys_and_package_repos {
     AZ_REPO=$(lsb_release -cs)
     echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" |
         sudo tee /etc/apt/sources.list.d/azure-cli.list
+    # Az Functions repo
+    sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/debian/$(lsb_release -rs)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
 
     # Add the Kubernetes CLI repo...
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - #kubectl
@@ -87,7 +89,8 @@ function install_cli_tools {
         python3-pip \
         git \
         dotnet-sdk-2.1 \
-        dotnet-sdk-3.1
+        dotnet-sdk-3.1 \
+        azure-functions-core-tools
 
     # Install Terraform
     wget -O terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
@@ -123,7 +126,7 @@ function setup_local_profile {
 
     if [ ! -f /usr/bin/docker ] ; then
         echo "/usr/bin/docker does not exist, creating softlink to $(which docker.exe)";
-    sudo ln -s "$(which docker.exe)" /usr/bin/docker
+        sudo ln -s "$(which docker.exe)" /usr/bin/docker
     fi
 
     source ~/.bashrc
