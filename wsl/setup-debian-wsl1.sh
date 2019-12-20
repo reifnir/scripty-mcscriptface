@@ -33,6 +33,7 @@ function install_prerequisites {
         apt-transport-https \
         software-properties-common \
         unzip \
+        zip \
         wget
     # net-tools has "ifconfig" which is helpful in other scripts we use (to find current ip address)
 }
