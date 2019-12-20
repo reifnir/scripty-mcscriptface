@@ -116,7 +116,15 @@ function setup_local_profile {
     sed -i "/alias docker=/d" ~/.bashrc
     #echo "alias docker=docker.exe" >> ~/.bashrc && source ~/.bashrc
     #No longer using an alias (breaks docker calls frmo scripts), make softlink
+    if [ -L /usr/bin/docker ] ; then
+        echo "Removing existing softlink to Docker"
+        sudo unlink /usr/bin/docker
+    fi
+
+    if [ ! -f /usr/bin/docker ] ; then
+        echo "/usr/bin/docker does not exist, creating softlink to $(which docker.exe)";
     sudo ln -s "$(which docker.exe)" /usr/bin/docker
+    fi
 
     source ~/.bashrc
 }
