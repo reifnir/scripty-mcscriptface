@@ -16,12 +16,13 @@ function setup_workstation {
     cleanup
     echo "Completed: $(date)"
 }
+
 function upgrade_packages {
     sudo apt update
     # Because otherwise Ubuntu gets cute with prompting the user about whether it's okay to restart services during this upgrade
     sudo apt -qy upgrade
-    # sudo DEBIAN_FRONTEND=noninteractive apt -qy upgrade
 }
+
 function install_node_and_npm {
     echo "Installing Nodejs..."
     sudo apt install -y nodejs
@@ -35,6 +36,7 @@ function install_node_and_npm {
     export NPM_CONFIG_PREFIX=~/.npm-global
     echo "export NPM_CONFIG_PREFIX=~/.npm-global" >> ~/.bashrc && source ~/.bashrc
 }
+
 function install_dotnet_core_sdk {
     echo "Adding Microsoft repository key and feed..."
     PKG=packages-microsoft-prod.deb
@@ -48,6 +50,7 @@ function install_dotnet_core_sdk {
     sudo apt update
     sudo apt install -y dotnet-sdk-3.1
 }
+
 function install_misc_tools {
     # This includes pre-requisites for CA Certificate updates, Azure-CLI, kubectl, and Docker.
     # net-tools has "ifconfig" which is helpful in other scripts we use (to find current ip address)
@@ -58,6 +61,7 @@ function install_misc_tools {
         zip \
         jq
 }
+
 function install_cli_tools {
 
     echo "Installing Azure CLI..."
@@ -83,6 +87,7 @@ function install_cli_tools {
     echo "Installing Azure Functions Core Tools..."
     npm i -g azure-functions-core-tools@3 --unsafe-perm true
 }
+
 function setup_local_profile {
     if [ ! -d ~/.ssh ]; then
         # Not softlinking as currently unable to set permissions correctly
@@ -98,6 +103,7 @@ function setup_local_profile {
 
     source ~/.bashrc
 }
+
 function cleanup {
     upgrade_packages
     sudo apt -y autoremove
