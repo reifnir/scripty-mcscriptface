@@ -59,7 +59,8 @@ function install_misc_tools {
         net-tools \
         unzip \
         zip \
-        jq
+        jq \
+        direnv
 }
 
 function install_cli_tools {
