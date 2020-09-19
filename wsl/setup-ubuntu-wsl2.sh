@@ -2,7 +2,7 @@
 export MY_WINDOWS_USERNAME="$1"
 
 #Reminder: Terraform state is not backward compatible (even for revision changes!)
-TERRAFORM_VERSION="0.12.24"
+TERRAFORM_VERSION="0.13.3"
 
 echo "MY_WINDOWS_USERNAME=$MY_WINDOWS_USERNAME"
 function setup_workstation {
