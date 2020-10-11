@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e # stop immediately on error
 export MY_WINDOWS_USERNAME="$1"
 
 #Reminder: Terraform state is not backward compatible (even for revision changes!)
@@ -39,7 +40,7 @@ function install_node_and_npm {
 
 function install_dotnet_core_sdk {
     echo "Adding Microsoft repository key and feed..."
-    PKG=packages-microsoft-prod.deb
+    PKG=/tmp/packages-microsoft-prod.deb
     wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O $PKG
     sudo dpkg -i $PKG
     rm $PKG
@@ -60,7 +61,8 @@ function install_misc_tools {
         unzip \
         zip \
         jq \
-        direnv
+        direnv \
+        azure-functions-core-tools
 }
 
 function install_cli_tools {
@@ -74,19 +76,20 @@ function install_cli_tools {
     # Install Kubectl
     # If we wanted a specific version, example URL: https://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/linux/amd64/kubectl
     echo "Installing kubectl..."
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-    sudo mv kubectl /usr/local/bin
+    URL="https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl"
+    wget -O /tmp/kubectl $URL
+    sudo mv /tmp/kubectl /usr/local/bin
 
     echo "Installing Terraform..."
-    wget -O terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-    sudo unzip -o terraform.zip -d /usr/local/bin
+    wget -O /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+    sudo unzip -o /tmp/terraform.zip -d /usr/local/bin
     rm -f terraform.zip
 
     echo "Installing Yarn..."
     sudo apt install -y yarnpkg
 
     echo "Installing Azure Functions Core Tools..."
-    npm i -g azure-functions-core-tools@3 --unsafe-perm true
+    # npm i -g azure-functions-core-tools@3 --unsafe-perm true
 }
 
 function setup_local_profile {
@@ -102,6 +105,9 @@ function setup_local_profile {
     fi
     ln -s "/mnt/c/Users/$MY_WINDOWS_USERNAME/.gitconfig" ~/
 
+
+    sed -i "/direnv hook bash/d" ~/.bashrc
+    echo "direnv hook bash" | sudo tee -a ~/.bashrc > /dev/null
     source ~/.bashrc
 }
 
