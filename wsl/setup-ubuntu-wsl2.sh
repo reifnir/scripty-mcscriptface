@@ -3,7 +3,7 @@ set -e # stop immediately on error
 export MY_WINDOWS_USERNAME="$1"
 
 #Reminder: Terraform state is not backward compatible (even for revision changes!)
-TERRAFORM_VERSION="0.13.3"
+TERRAFORM_VERSION="0.13.4"
 
 echo "MY_WINDOWS_USERNAME=$MY_WINDOWS_USERNAME"
 function setup_workstation {
