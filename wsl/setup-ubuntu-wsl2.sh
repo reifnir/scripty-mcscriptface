@@ -106,8 +106,8 @@ function setup_local_profile {
     ln -s "/mnt/c/Users/$MY_WINDOWS_USERNAME/.gitconfig" ~/
 
 
-    sed -i "/direnv hook bash/d" ~/.bashrc
-    echo "direnv hook bash" | sudo tee -a ~/.bashrc > /dev/null
+    sed -i '/eval "$(direnv hook bash)"/d' ~/.bashrc
+    echo 'eval "$(direnv hook bash)"' | tee -a ~/.bashrc > /dev/null
     source ~/.bashrc
 }
 
