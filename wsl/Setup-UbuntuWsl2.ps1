@@ -21,7 +21,7 @@ function Invoke-WslSetup() {
 
     $linuxScriptPath = "./setup-ubuntu-wsl2.sh"
     Write-Host "Executing script: $linuxScriptPath"
-    &$DistroExe run "$linuxScriptPath '$env:username'"    
+    &$DistroExe run "$linuxScriptPath '$env:username'"
     
     Write-Host "Going back to whatever working directory we had been in..."
     Pop-Location
