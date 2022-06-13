@@ -115,8 +115,8 @@ function install_cli_tools {
     sudo "$TEMP_DIR/aws/install" $UPDATE_FLAG
     rm -rf "$TEMP_DIR"
 
-    echo "Installing Azure Functions Core Tools..."
-    sudo apt install -y azure-functions-core-tools-3
+    # echo "Installing Azure Functions Core Tools..."
+    sudo apt install -y azure-functions-core-tools-4
 
     echo "Downloading jiq to '/usr/local/bin'..."
     # https://github.com/fiatjaf/jiq
