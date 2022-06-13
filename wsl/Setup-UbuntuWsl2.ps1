@@ -1,11 +1,10 @@
 $ErrorActionPreference = "Stop"
-$DistroName = "Ubuntu-20.04"
-$DistroExe = "Ubuntu2004.exe"
+$DistroName = "Ubuntu"
+$DistroExe = "ubuntu.exe"
 $MinWindows10BuildWithWsl2 = 19041
 $DistroUri = "https://aka.ms/wslubuntu2004"
 
 function Initialize-WslDistrobution() {
-    Check-WindowsVersion
     Check-WslInstalled
     Ensure-DistroInstalled
 
@@ -16,27 +15,25 @@ function Initialize-WslDistrobution() {
     Write-Host "WSL username: $(&$DistroExe run 'echo $USER')"
 }
 function Invoke-WslSetup() {
+    Write-Host "Invoke-WslSetup: Starting..."
     Write-Host "Setting the working directory to the location of this script..."
     Push-Location -Path $PSScriptRoot
-
-    $linuxScriptPath = "./setup-ubuntu-wsl2.sh"
-    Write-Host "Executing script: $linuxScriptPath"
-    &$DistroExe run "$linuxScriptPath '$env:username'"
+    $linuxCommand = "./setup-ubuntu-wsl2.sh '$env:username'"
+    Write-Host "Executing script: $linuxCommand"
+    &$DistroExe run "$linuxCommand"
     
     Write-Host "Going back to whatever working directory we had been in..."
     Pop-Location
 }
 
-function Check-WindowsVersion() {
-    $windowsVersion = [System.Environment]::OSVersion.Version
-    if (($windowsVersion.Major -ne 10) -or ($windowsVersion.Build -lt $MinWindows10BuildWithWsl2)) {
-        throw "This script requires Windows 10 update 2004 (build 19041) or later"
-    }
-}
 function Check-WslInstalled() {
     $wslInstalled=$(where.exe wsl)
     if (!$wslInstalled) {
         Write-Error -Message "WSL is not enabled. You must first run the following command in an Administrator PowerShell session (then reboot): 'Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux'"
+    }
+    else {
+
+        Write-Host "WSL is installed at $wslInstalled"
     }
 }
 
@@ -62,7 +59,7 @@ function Ensure-DistroInstalled() {
     }
 }
 
-#Get WSL subsystem ready to be run
+# #Get WSL subsystem ready to be run
 $Start=Get-Date
 Initialize-WslDistrobution
 Invoke-WslSetup
