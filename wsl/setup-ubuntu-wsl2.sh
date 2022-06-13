@@ -26,7 +26,7 @@ function setup_workstation {
     install_latest_terraform
     install_strongdm_script
     install_powershell
-    setup_local_profile
+    setup_git
     cleanup
     echo "Completed: $(date)"
 }
@@ -204,6 +204,29 @@ function setup_local_profile {
     echo "$DIRENV_CMD" >> ~/.bashrc
 
     source ~/.bashrc
+}
+
+function setup_git {
+    CURRENT_GIT_NAME=""
+    CURRENT_GIT_EMAIL=""
+
+    echo "Setting up Git global config..."
+
+    if [ -z "$CURRENT_GIT_NAME" ]; then
+        read -p "Enter the name for your Git commits: " DESIRED_GIT_USERNAME
+        echo "Setting Git user name to '$DESIRED_GIT_USERNAME'..."
+        git config --global user.name "$DESIRED_GIT_USERNAME"
+    else
+        echo "Name for Git commits set to '$CURRENT_GIT_NAME'. If you want to change this, execute 'git config --global user.name \"My Desired Name\"'"
+    fi
+    
+    if [ -z "$CURRENT_GIT_EMAIL" ]; then
+        read -p "Enter the email for your Git commits: " DESIRED_GIT_EMAIL
+        echo "Setting Git user email to '$DESIRED_GIT_EMAIL'..."
+        git config --global user.email "$DESIRED_GIT_EMAIL"
+    else
+        echo "Email for Git commits set to '$CURRENT_GIT_EMAIL'. If you want to change this, execute 'git config --global user.email \"some.email@domain.com\"'"
+    fi
 }
 
 function cleanup {
