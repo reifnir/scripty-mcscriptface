@@ -93,7 +93,8 @@ function install_misc_tools {
         jq \
         direnv \
         python3 \
-        python3-pip
+        python3-pip \
+        ncdu
 }
 
 function install_cli_tools {
