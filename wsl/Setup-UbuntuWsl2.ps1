@@ -1,7 +1,6 @@
 $ErrorActionPreference = "Stop"
 $DistroName = "Ubuntu"
 $DistroExe = "ubuntu.exe"
-$MinWindows10BuildWithWsl2 = 19041
 $DistroUri = "https://aka.ms/wslubuntu2004"
 
 function Initialize-WslDistrobution() {
