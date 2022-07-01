@@ -15,8 +15,10 @@ Back up an entire directory named `dev` (for example) in the current working dir
 ## Backup a folder
 
 ```bash
-sudo tar -czvf dev-2022-02-07.tar.gz ./dev
+sudo tar -czvf "dev-$(date +"%Y-%m-%d").tar.gz" ./dev
 ```
 
 ## Restore that folder
-tar -xzvf ./dev-2022-02-07.tar.gz .
+```bash
+tar -xzvf ./dev-2022-07-01.tar.gz .
+```
