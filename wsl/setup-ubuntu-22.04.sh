@@ -27,6 +27,7 @@ function setup-workstation {
     install-latest-terraform
     install-powershell
     # setup-git
+  copy-helper-assets
     cleanup
     echo "Completed: $(date)"
 }
@@ -243,6 +244,16 @@ function install-powershell {
 #         echo "Email for Git commits set to '$CURRENT_GIT_EMAIL'. If you want to change this, execute 'git config --global user.email \"some.email@domain.com\"'"
 #     fi
 # }
+
+function copy-helper-assets() {
+  mkdir -p ~/wsl-scripts
+
+  echo "Copying backup and restore scripts into '~/wsl-scripts'..."
+  cp "$SCRIPT_DIR/wsl-assets/backup-current-directory.sh" ~/wsl-scripts
+  cp "$SCRIPT_DIR/wsl-assets/restore-to-current-directory.sh" ~/wsl-scripts
+  chmod +x ~/wsl-scripts/backup-current-directory.sh
+  chmod +x ~/wsl-scripts/restore-to-current-directory.sh
+}
 
 function cleanup {
     sudo apt -y autoremove
