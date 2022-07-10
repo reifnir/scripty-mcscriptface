@@ -2,12 +2,12 @@
 # wsl --set-default Ubuntu-22.04
 # apt list -a awscli
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMP_DIR="$(mktemp -d)"
 
 NODE_VERSION="16"
 
-if [ `whoami` == "root" ]; then
+if [ $(whoami) == "root" ]; then
     echo "Don't run this script as root. B'bye!"
     exit 1
 fi
@@ -34,16 +34,16 @@ function setup-workstation {
 function check-username() {
     export WINDOWS_USERNAME="$(powershell.exe \$env:username | sed 's/[[:space:]]*$//')"
     echo "Windows username: $WINDOWS_USERNAME"
-    echo "  Linux username: `whoami`"
+  echo "  Linux username: $(whoami)"
 
-    if [ "`whoami`" != "$WINDOWS_USERNAME" ]; then
+  if [ "$(whoami)" != "$WINDOWS_USERNAME" ]; then
         echo "Warning: user Windows and Linux usernames aren't the same. If you use any scripts that assume your shell username is your AD username, you're going to have a bad time (looking at you, fleet-management project at KBRA)..."
         while true; do
             read -p "Are you sure you want to contine installing dependencies? " yn
             case $yn in
-                [Yy]* ) break;;
-                [Nn]* ) exit;;
-                * ) echo "Please answer yes or no.";;
+      [Yy]*) break ;;
+      [Nn]*) exit ;;
+      *) echo "Please answer yes or no." ;;
             esac
         done
     fi
@@ -55,12 +55,12 @@ function replace-line-in-file-containing() {
     REPLACEMENT="$3"
 
     sudo sed -i "/$STARTS_WITH/d" "$FILE_PATH"
-    echo "$REPLACEMENT" | sudo tee --append "$FILE_PATH" > /dev/null
+  echo "$REPLACEMENT" | sudo tee --append "$FILE_PATH" >/dev/null
 }
 
 function let-sudo-without-password() {
     echo "Setting up"
-    replace-line-in-file-containing /etc/sudoers "`whoami` " "`whoami` ALL=(ALL) NOPASSWD:ALL"
+  replace-line-in-file-containing /etc/sudoers "$(whoami) " "$(whoami) ALL=(ALL) NOPASSWD:ALL"
 }
 
 function upgrade-packages() {
@@ -134,7 +134,7 @@ function install-cli-tools {
     AWS_CLI_ZIP="$TEMP_DIR/awscliv2.zip"
     curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$AWS_CLI_ZIP"
     unzip "$AWS_CLI_ZIP" -d "$TEMP_DIR"
-    if [ ! -z "`which aws`" ]; then
+  if [ ! -z "$(which aws)" ]; then
         UPDATE_FLAG="--update"
     else
         UPDATE_FLAG=""
@@ -166,7 +166,7 @@ function install-kubernetes-tools {
     # Install Kubectl
     # If we wanted a specific version, example URL: https://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/linux/amd64/kubectl
     echo "Installing kubectl..."
-    curl -sLO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+  curl -sLO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     sudo mv kubectl /usr/local/bin
     sudo chmod +x /usr/local/bin/kubectl
 
