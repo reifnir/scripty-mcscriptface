@@ -146,11 +146,11 @@ function install-cli-tools {
     # echo "Installing Azure Functions Core Tools..."
     sudo apt-get install -y azure-functions-core-tools-4
 
-    echo "Downloading jiq (visual jq tool) to '/usr/local/bin'..."
-    # https://github.com/fiatjaf/jiq
-    JIQ_URL="`curl -s https://api.github.com/repos/fiatjaf/jiq/releases/latest | jq '.assets | .[] | select(.name == "jiq_linux_amd64").browser_download_url' -r`"
-    sudo curl -s "$JIQ_URL" -L -o /usr/local/bin/jiq
-    sudo chmod +x /usr/local/bin/jiq
+  # echo "Downloading jiq (visual jq tool) to '/usr/local/bin'..."
+  # # https://github.com/fiatjaf/jiq
+  # JIQ_URL="`curl -s https://api.github.com/repos/fiatjaf/jiq/releases/latest | jq '.assets | .[] | select(.name == "jiq_linux_amd64").browser_download_url' -r`"
+  # sudo curl -s "$JIQ_URL" -L -o /usr/local/bin/jiq
+  # sudo chmod +x /usr/local/bin/jiq
 
     # Since I've never used yq, let's not actually install it
     # echo "Installing yq (like jq for yaml)..."
