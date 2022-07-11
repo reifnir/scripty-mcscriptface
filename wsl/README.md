@@ -8,7 +8,7 @@ If you can run the following command without error:
 wsl --help
 ```
 
-Then WSL is installed.
+Then either WSL 1 or 2 is installed.
 
 If you can run the following command and you see a `VERSION` column, then WSL2 is installed:
 
