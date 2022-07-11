@@ -235,8 +235,9 @@ function setup-local-profile() {
 function setup-git() {
   echo "setup-git: start"
 
-  CURRENT_GIT_NAME="$(git config --global user.name)"
-  CURRENT_GIT_EMAIL="$(git config --global user.email)"
+  # If not yet set, the command returns a non-zero exit code, but we don't want to quit on the script
+  CURRENT_GIT_NAME="$(git config --global user.name || true)"
+  CURRENT_GIT_EMAIL="$(git config --global user.email || true)"
 
   echo "Setting up Git global config..."
 
