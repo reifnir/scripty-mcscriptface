@@ -24,8 +24,10 @@ function setup-workstation {
   install-kubernetes-tools
   install-latest-terraform
   install-powershell
-  # setup-git
+  copy-default-ssh-keys-from-windows
+  setup-git
   copy-helper-assets
+  setup-local-profile
   cleanup
   echo "Completed: $(date)"
 }
@@ -142,12 +144,6 @@ function install-cli-tools {
   # echo "Installing Azure Functions Core Tools..."
   sudo apt-get install -y azure-functions-core-tools-4
 
-  # echo "Downloading jiq (visual jq tool) to '/usr/local/bin'..."
-  # # https://github.com/fiatjaf/jiq
-  # JIQ_URL="`curl -s https://api.github.com/repos/fiatjaf/jiq/releases/latest | jq '.assets | .[] | select(.name == "jiq_linux_amd64").browser_download_url' -r`"
-  # sudo curl -s "$JIQ_URL" -L -o /usr/local/bin/jiq
-  # sudo chmod +x /usr/local/bin/jiq
-
   # Since I've never used yq, let's not actually install it
   # echo "Installing yq (like jq for yaml)..."
   # sudo pip3 install yq
@@ -203,43 +199,77 @@ function install-powershell {
   sudo apt-get install -y powershell
 }
 
-# function setup-local-profile {
-#     if [ ! -d ~/.ssh ]; then
-#         # Not softlinking as currently unable to set permissions correctly
-#         cp /mnt/c/Users/$WINDOWS_USERNAME/.ssh ~/ -r
-#         chmod 600 ~/.ssh/id_rsa*
-#     fi
+function setup-local-profile {
 
-#     echo "Wiring up direnv to bash..."
-#     DIRENV_CMD='eval "$(direnv hook bash)"'
-#     sed -i "/$DIRENV_CMD/d" ~/.bashrc
-#     echo "$DIRENV_CMD" >> ~/.bashrc
+  echo "Wiring up direnv to bash..."
+  DIRENV_CMD='eval "$(direnv hook bash)"'
 
-#     source ~/.bashrc
-# }
+  # Doing it this way ensures we don't get an entry every single time we run this
+  replace-line-in-file-containing ~/.bashrc "$DIRENV_CMD" "$DIRENV_CMD"
 
-# function setup-git {
-#     CURRENT_GIT_NAME=""
-#     CURRENT_GIT_EMAIL=""
+  . ~/.bashrc
+}
 
-#     echo "Setting up Git global config..."
+function setup-git {
+  CURRENT_GIT_NAME="$(git config --global user.name)"
+  CURRENT_GIT_EMAIL="$(git config --global user.email)"
 
-#     if [ -z "$CURRENT_GIT_NAME" ]; then
-#         read -p "Enter the name for your Git commits: " DESIRED_GIT_USERNAME
-#         echo "Setting Git user name to '$DESIRED_GIT_USERNAME'..."
-#         git config --global user.name "$DESIRED_GIT_USERNAME"
-#     else
-#         echo "Name for Git commits set to '$CURRENT_GIT_NAME'. If you want to change this, execute 'git config --global user.name \"My Desired Name\"'"
-#     fi
+  echo "Setting up Git global config..."
 
-#     if [ -z "$CURRENT_GIT_EMAIL" ]; then
-#         read -p "Enter the email for your Git commits: " DESIRED_GIT_EMAIL
-#         echo "Setting Git user email to '$DESIRED_GIT_EMAIL'..."
-#         git config --global user.email "$DESIRED_GIT_EMAIL"
-#     else
-#         echo "Email for Git commits set to '$CURRENT_GIT_EMAIL'. If you want to change this, execute 'git config --global user.email \"some.email@domain.com\"'"
-#     fi
-# }
+  if [ -z "$CURRENT_GIT_NAME" ]; then
+    read -p "Enter the name for your Git commits: " DESIRED_GIT_USERNAME
+    echo "Setting Git user name to '$DESIRED_GIT_USERNAME'..."
+    git config --global user.name "$DESIRED_GIT_USERNAME"
+  else
+    echo "Name for Git commits set to '$CURRENT_GIT_NAME'. If you want to change this, execute 'git config --global user.name \"My Desired Name\"'"
+  fi
+
+  if [ -z "$CURRENT_GIT_EMAIL" ]; then
+    read -p "Enter the email for your Git commits: " DESIRED_GIT_EMAIL
+    echo "Setting Git user email to '$DESIRED_GIT_EMAIL'..."
+    git config --global user.email "$DESIRED_GIT_EMAIL"
+  else
+    echo "Email for Git commits set to '$CURRENT_GIT_EMAIL'. If you want to change this, execute 'git config --global user.email \"some.email@domain.com\"'"
+  fi
+}
+
+# Could get cute with this and make it more generic, but that seems overkill for who's using this.
+function copy-default-ssh-keys-from-windows() {
+  if [ ! -d ~/.ssh ]; then
+    echo "~/.ssh directory does not yet exist creating now with 700 permissions..."
+    mkdir -p ~/.ssh
+    chmod 0700 ~/.ssh
+  fi
+
+  # That sed stuff at the end is to kill a trailing line ending
+  WIN_SSH_DIR_EXISTS="$(printf "$(powershell.exe "Test-Path ~/.ssh")" | tr -d "\r")"
+
+  if [ "$WIN_SSH_DIR_EXISTS" != "True" ]; then
+    echo "Current user does not have SSH keys in Windows home directory."
+    return
+  fi
+
+  WIN_SSH_DIR="$(printf "$(powershell.exe 'cd ~/.ssh; wsl pwd')")"
+  echo "Windows .ssh directory found for user at $WIN_SSH_DIR"
+
+  echo "Copying id_rsa and id_rsa.pub from "$WIN_SSH_DIR" to ~/.ssh if they don't already exist"
+
+  if [ -f $WIN_SSH_DIR/id_rsa ] && [ ! -f ~/.ssh/id_rsa ]; then
+    echo "Copying SSH private key found at $WIN_SSH_DIR/id_rsa which doesn't exist in ~/.ssh..."
+    cp $WIN_SSH_DIR/id_rsa ~/.ssh/id_rsa
+    sudo chown $USER ~/.ssh/id_rsa
+    sudo chgrp $USER ~/.ssh/id_rsa
+    chmod 0600 ~/.ssh/id_rsa
+  fi
+
+  if [ -f $WIN_SSH_DIR/id_rsa.pub ] && [ ! -f ~/.ssh/id_rsa.pub ]; then
+    echo "Copying SSH public key found at $WIN_SSH_DIR/id_rsa.pub which doesn't exist in ~/.ssh..."
+    cp $WIN_SSH_DIR/id_rsa.pub ~/.ssh/id_rsa.pub
+    sudo chown $USER ~/.ssh/id_rsa.pub
+    sudo chgrp $USER ~/.ssh/id_rsa.pub
+    chmod 0644 ~/.ssh/id_rsa.pub
+  fi
+}
 
 function copy-helper-assets() {
   mkdir -p ~/wsl-scripts
