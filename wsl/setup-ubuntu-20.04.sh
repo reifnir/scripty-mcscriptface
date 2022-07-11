@@ -233,6 +233,7 @@ function setup_git {
 function cleanup {
     upgrade_packages
     sudo apt -y autoremove
+    rm -rf "$TEMP_DIR"
 }
 
 # setup all of the things
