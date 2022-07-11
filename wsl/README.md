@@ -75,7 +75,7 @@ Setting up
 ...
 ```
 
-### TroubleshootingTROUBLESHOOTING
+### Troubleshooting
 
 If you get an error saying that you can't run as root and you didn't kick it off with a `sudo` statement, then `docker-desktop` is probably your default WSL install. You can fix that with:
 
