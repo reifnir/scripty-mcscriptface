@@ -97,18 +97,18 @@ PS C:\dev\scripty-mcscriptface> wsl -l -v
 
 ### Main
 
-| App/Package | Version     | Apt | Specific Version                                                                                               |   |
-|-------------|-------------|-----|----------------------------------------------------------------------------------------------------------------|---|
-| .NET 6.0    | latest      | [x] |                                                                                                                |   |
-| AWS CLI     | latest (v2) | []  |                                                                                                                |   |
-| Azure CLI   | latest      | [x] |                                                                                                                |   |
-| Helm        | latest (v3) | [x] |                                                                                                                |   |
-| kubectl     | latest      | []  |                                                                                                                |   |
-| NodeJS, NPM | latest      | []  | `NODE_VERSION="16"` Look [here](https://github.com/nodesource/distributions#debinstall) for different versions |   |
-| PowerShell  | latest      | [x] |                                                                                                                |   |
-| Python      | latest (v3) | [x] |                                                                                                                |   |
-| Terraform   | latest      | [x] | *Note:* Terraform state is not backward compatible prior to 0.14                                               |   |
-| Yarn        | latest      | []  |                                                                                                                |   |
+| App/Package | Version     | Apt   | Specific Version                                                                                               |   |
+|-------------|-------------|-------|----------------------------------------------------------------------------------------------------------------|---|
+| .NET 6.0    | latest      | - [x] |                                                                                                                |   |
+| AWS CLI     | latest (v2) | - []  |                                                                                                                |   |
+| Azure CLI   | latest      | - [x] |                                                                                                                |   |
+| Helm        | latest (v3) | - [x] |                                                                                                                |   |
+| kubectl     | latest      | - []  |                                                                                                                |   |
+| NodeJS, NPM | latest      | - []  | `NODE_VERSION="16"` Look [here](https://github.com/nodesource/distributions#debinstall) for different versions |   |
+| PowerShell  | latest      | - [x] |                                                                                                                |   |
+| Python      | latest (v3) | - [x] |                                                                                                                |   |
+| Terraform   | latest      | - [x] | *Note:* Terraform state is not backward compatible prior to 0.14                                               |   |
+| Yarn        | latest      | - []  |                                                                                                                |   |
 
 ### Misc packages
 
