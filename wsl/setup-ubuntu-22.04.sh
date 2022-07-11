@@ -35,6 +35,7 @@ function setup-workstation {
 }
 
 function check-username() {
+  echo "check-username: start"
   export WINDOWS_USERNAME="$(powershell.exe \$env:username | sed 's/[[:space:]]*$//')"
   echo "Windows username: $WINDOWS_USERNAME"
   echo "  Linux username: $(whoami)"
@@ -50,30 +51,36 @@ function check-username() {
       esac
     done
   fi
+  echo "check-username: finish"
 }
 
 function replace-line-in-file-containing() {
+  echo "replace-line-in-file-containing: start"
   FILE_PATH="$1"
   STARTS_WITH="$2"
   REPLACEMENT="$3"
 
   sudo sed -i "/$STARTS_WITH/d" "$FILE_PATH"
   echo "$REPLACEMENT" | sudo tee --append "$FILE_PATH" >/dev/null
+  echo "replace-line-in-file-containing: finish"
 }
 
 function let-sudo-without-password() {
-  echo "Setting up"
+  echo "let-sudo-without-password: start"
   replace-line-in-file-containing /etc/sudoers "$(whoami) " "$(whoami) ALL=(ALL) NOPASSWD:ALL"
+  echo "let-sudo-without-password: finish"
 }
 
 function upgrade-packages() {
+  echo "upgrade-packages: start"
   sudo apt-get update
   sudo apt-get -qy upgrade
+  echo "upgrade-packages: finish"
 }
 
+# This includes pre-requisites for CA Certificate updates, Azure-CLI, kubectl, Docker, and NodeJS.
 function install-prereqs-and-misc-tools() {
-  # This includes pre-requisites for CA Certificate updates, Azure-CLI, kubectl, Docker, and NodeJS.
-  echo "Installing pre-reqs"
+  echo "install-prereqs-and-misc-tools: start"
 
   # net-tools has "ifconfig" which is helpful in other scripts we use (to find current ip address)
   # Hey Chris Breish, did you know that curling ifconfig.co gives you your public IP address :themoreyouknow:
@@ -92,9 +99,11 @@ function install-prereqs-and-misc-tools() {
     apt-transport-https \
     lsb \
     software-properties-common
+  echo "install-prereqs-and-misc-tools: finish"
 }
 
-function install-node-npm-and-yarn {
+function install-node-npm-and-yarn() {
+  echo "install-node-npm-and-yarn: start"
   # Look here for different versions: https://github.com/nodesource/distributions#debinstall
   echo "Installing Nodejs version $NODE_VERSION..."
   curl -fsSL "https://deb.nodesource.com/setup_$NODE_VERSION.x" | sudo -E bash -
@@ -109,9 +118,11 @@ function install-node-npm-and-yarn {
   echo "Setting-up a global directory for this user..."
   mkdir -p ~/.npm-global
   replace-line-in-file-containing ~/.bashrc "export NPM_CONFIG_PREFIX=" "export NPM_CONFIG_PREFIX=~/.npm-global"
+  echo "install-node-npm-and-yarn: finish"
 }
 
 function install-dotnet-core-sdk {
+  echo "install-dotnet-core-sdk: start"
   echo "Adding Microsoft repository key and feed..."
   PKG=packages-microsoft-prod.deb
   wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O $PKG
@@ -122,10 +133,11 @@ function install-dotnet-core-sdk {
   sudo apt-get update
   #sudo apt-get install -y apt-transport-https
   sudo apt-get install -y dotnet-sdk-6.0
+  echo "install-dotnet-core-sdk: finish"
 }
 
 function install-cli-tools {
-
+  echo "install-cli-tools: start"
   echo "Installing Azure CLI..."
   curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
@@ -155,9 +167,11 @@ function install-cli-tools {
   curl -s -L "$DIVE_URL" -o "$TEMP_DIR/dive.deb"
   sudo apt-get install "$TEMP_DIR/dive.deb"
   echo "\$?=$?"
+  echo "install-cli-tools: finish"
 }
 
 function install-kubernetes-tools {
+  echo "install-kubernetes-tools: start"
   # Install Kubectl
   # If we wanted a specific version, example URL: https://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/linux/amd64/kubectl
   echo "Installing kubectl..."
@@ -170,9 +184,11 @@ function install-kubernetes-tools {
   echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
   sudo apt-get update
   sudo apt-get install -y helm
+  echo "install-kubernetes-tools: finish"
 }
 
-function install-latest-terraform {
+function install-latest-terraform() {
+  echo "install-latest-terraform: start"
   echo "Installing Terraform..."
   echo "  Installing HashiCorp key..."
   curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
@@ -185,9 +201,11 @@ function install-latest-terraform {
 
   # echo "Installing CDK for Terraform (cdktf-cli)"
   # sudo npm install -g cdktf-cli
+  echo "install-latest-terraform: finish"
 }
 
-function install-powershell {
+function install-powershell() {
+  echo "install-powershell: start"
   # Download the Microsoft repository GPG keys
   curl -sL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o "$TEMP_DIR/packages-microsoft-prod.deb"
   # Register the Microsoft repository GPG keys
@@ -199,10 +217,11 @@ function install-powershell {
   sudo add-apt-repository -y universe
   # Install PowerShell
   sudo apt-get install -y powershell
+  echo "install-powershell: finish"
 }
 
-function setup-local-profile {
-
+function setup-local-profile() {
+  echo "setup-local-profile: start"
   echo "Wiring up direnv to bash..."
   DIRENV_CMD='eval "$(direnv hook bash)"'
 
@@ -210,9 +229,12 @@ function setup-local-profile {
   replace-line-in-file-containing ~/.bashrc "$DIRENV_CMD" "$DIRENV_CMD"
 
   . ~/.bashrc
+  echo "setup-local-profile: finish"
 }
 
-function setup-git {
+function setup-git() {
+  echo "setup-git: start"
+
   CURRENT_GIT_NAME="$(git config --global user.name)"
   CURRENT_GIT_EMAIL="$(git config --global user.email)"
 
@@ -233,10 +255,13 @@ function setup-git {
   else
     echo "Email for Git commits set to '$CURRENT_GIT_EMAIL'. If you want to change this, execute 'git config --global user.email \"some.email@domain.com\"'"
   fi
+  echo "setup-git: finish"
 }
 
 # Could get cute with this and make it more generic, but that seems overkill for who's using this.
 function copy-default-ssh-keys-from-windows() {
+  echo "copy-default-ssh-keys-from-windows: start"
+
   if [ ! -d ~/.ssh ]; then
     echo "~/.ssh directory does not yet exist creating now with 700 permissions..."
     mkdir -p ~/.ssh
@@ -271,9 +296,11 @@ function copy-default-ssh-keys-from-windows() {
     sudo chgrp $USER ~/.ssh/id_rsa.pub
     chmod 0644 ~/.ssh/id_rsa.pub
   fi
+  echo "copy-default-ssh-keys-from-windows: finish"
 }
 
 function copy-helper-assets() {
+  echo "copy-helper-assets: start"
   mkdir -p ~/wsl-scripts
 
   echo "Copying backup and restore scripts into '~/wsl-scripts'..."
@@ -281,11 +308,14 @@ function copy-helper-assets() {
   cp "$SCRIPT_DIR/wsl-assets/restore-to-current-directory.sh" ~/wsl-scripts
   chmod +x ~/wsl-scripts/backup-current-directory.sh
   chmod +x ~/wsl-scripts/restore-to-current-directory.sh
+  echo "copy-helper-assets: finish"
 }
 
-function cleanup {
+function cleanup() {
+  echo "cleanup: start"
   sudo apt -y autoremove
   rm -rf "$TEMP_DIR"
+  echo "cleanup: finish"
 }
 
 # setup all of the things
