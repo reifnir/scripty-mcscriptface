@@ -3,6 +3,8 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMP_DIR="$(mktemp -d)"
 
+# Override this to use a different version of NodeJS. This installs the latest 16.x LTS version
+# https://github.com/nodesource/distributions#debinstall
 NODE_VERSION="16"
 
 if [ $(whoami) == "root" ]; then
