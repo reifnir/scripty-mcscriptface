@@ -18,6 +18,7 @@ function setup-workstation {
 
   check-username
   let-sudo-without-password
+  fix-vscode-live-share-extension-thing
   upgrade-packages
   install-prereqs-and-misc-tools
   install-node-npm-and-yarn
@@ -69,6 +70,13 @@ function let-sudo-without-password() {
   echo "let-sudo-without-password: start"
   replace-line-in-file-containing /etc/sudoers "$(whoami) " "$(whoami) ALL=(ALL) NOPASSWD:ALL"
   echo "let-sudo-without-password: finish"
+}
+
+function fix-vscode-live-share-extension-thing() {
+  # https://github.com/MicrosoftDocs/live-share/issues/4648
+  echo "deb http://security.ubuntu.com/ubuntu impish-security main" | sudo tee /etc/apt/sources.list.d/impish-security.list
+  sudo apt-get update
+  sudo apt-get install -y libssl1.1
 }
 
 function upgrade-packages() {
