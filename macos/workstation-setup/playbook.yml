@@ -1,0 +1,51 @@
+- name: Install Dev Tools on Mac using Homebrew
+  hosts: mac
+  become: yes
+  
+  tasks:
+    - name: Install Homebrew
+      become: yes
+      shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+      when: not ansible_pkg_mgr_installed == 'homebrew'
+      
+    - name: Install Azure CLI
+      become: yes
+      homebrew:
+        name: azure-cli
+        state: present
+        
+    - name: Install Node.js
+      become: yes
+      homebrew:
+        name: node
+        state: present
+      
+    - name: Install Terraform
+      become: yes
+      homebrew:
+        name: terraform
+        state: present
+        
+    - name: Install Kubernetes CLI
+      become: yes
+      homebrew:
+        name: kubernetes-cli
+        state: present
+      
+    - name: Install Docker
+      become: yes
+      homebrew:
+        name: docker
+        state: present
+        
+    - name: Install Docker Compose
+      become: yes
+      homebrew:
+        name: docker-compose
+        state: present
+      
+    - name: Install AWS CLI
+      become: yes
+      homebrew:
+        name: awscli
+        state: present
