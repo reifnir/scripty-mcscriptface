@@ -57,6 +57,7 @@
   - name: Add the Kubernetes apt repository
     become: yes
     ansible.builtin.apt_repository:
+      # That's what the instructions say: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install-0
       repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
       state: present
 
