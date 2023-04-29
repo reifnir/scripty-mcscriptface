@@ -12,7 +12,7 @@
 
   - name: Install Homebrew
     ansible.builtin.shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    when: brew_check.failed
+    when: brew_check.rc != 0
 
   - name: Add Homebrew shell environment for Linux to shell configuration files
     ansible.builtin.lineinfile:
