@@ -1,0 +1,15 @@
+---
+- name: Install AWS CLI, Azure CLI, Terraform, and kubectl on localhost using Homebrew
+  hosts: localhost
+  become: no  # Homebrew should not be installed as root
+  gather_facts: yes
+  
+  vars:
+    git_name: Jim Andreasen
+    git_email: jim@andreasen.dev
+    
+    kubectl_version: 1.24
+    node_version: "lts/*" # NVM version identifier
+
+  roles:
+    - dev_workstation

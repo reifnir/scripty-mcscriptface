@@ -1,0 +1,163 @@
+---
+- set_fact:
+    ansible_user: "{{ lookup('env', 'USER') }}"
+
+- block:
+  - name: Check if Homebrew is installed
+    ansible.builtin.command:
+      cmd: which brew
+    register: brew_check
+    failed_when: false
+    changed_when: false
+
+  - name: Install Homebrew
+    ansible.builtin.shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    when: brew_check.failed
+
+  - name: Add Homebrew shell environment for Linux to shell configuration files
+    ansible.builtin.lineinfile:
+      path: "~/.bashrc"
+      line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+      insertafter: EOF
+      state: present
+
+  - name: Installing brew tools
+    community.general.homebrew:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - awscli
+      - azure-cli
+      - terraform
+
+  - name: Make current user a sudoer without requiring a password
+    become: yes
+    ansible.builtin.lineinfile:
+      path: "/etc/sudoers"
+      line: "{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL"
+      state: present
+      validate: 'visudo -cf %s'
+
+  - name: Install apt pre-requisites
+    become: yes
+    ansible.builtin.apt:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - ca-certificates
+      - curl
+
+  - name: Download the Google Cloud public signing key
+    become: yes
+    ansible.builtin.get_url:
+      url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+      dest: "/etc/apt/keyrings/kubernetes-archive-keyring.gpg"
+      mode: "0644"
+
+  - name: Add the Kubernetes apt repository
+    become: yes
+    ansible.builtin.apt_repository:
+      repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+      state: present
+
+  - name: Install kubectl from apt
+    become: yes
+    ansible.builtin.apt:
+      name: "kubectl={{ kubectl_version }}.*"
+      state: present
+      update_cache: yes
+
+  - name: Hold kubectl package
+    become: yes
+    ansible.builtin.command:
+      cmd: apt-mark hold kubectl
+
+  - name: Upgrade all apt packages
+    become: yes
+    ansible.builtin.apt:
+      upgrade: safe
+
+  # - name: Install OpenLens
+  #   become: yes
+  #   ansible.builtin.apt:
+  #     name: openlens
+  #     state: present
+
+  - name: Install misc tools
+    become: yes
+    ansible.builtin.apt:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - jq              # Lightweight and flexible command-line JSON processor
+      - zip             # Package and compress (archive) files
+      - ncdu            # Disk usage analyzer with an ncurses interface
+      - direnv          # Utility to set directory specific environment variables
+      - dotnet-sdk-6.0  # Install the latest .NET Core LTS version (using Ubuntu's package manager)
+
+  - name: Add direnv hook to bashrc
+    ansible.builtin.lineinfile:
+      path: "~/.bashrc"
+      line: 'eval "$(direnv hook bash)"'
+      insertafter: EOF
+      state: present
+
+  - name: Install Node Version Manager (NVM)
+    ansible.builtin.shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+
+  - name: Add NVM to shell configuration files
+    ansible.builtin.lineinfile:
+      path: "~/.bashrc"
+      line: 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+      insertafter: EOF
+      state: present
+
+  - name: Install Node.js using NVM
+    environment:
+      NVM_DIR: "{{ ansible_user_dir }}/.nvm"
+    ansible.builtin.shell: source {{ ansible_user_dir }}/.nvm/nvm.sh && nvm install {{ node_version }}
+    args:
+      executable: /bin/bash
+
+  - name: Install Microsoft GPG key
+    become: yes
+    ansible.builtin.apt_key:
+      url: https://packages.microsoft.com/keys/microsoft.asc
+      keyring: /usr/share/keyrings/microsoft-archive-keyring.gpg
+
+  - name: Add Microsoft package repository for PowerShell
+    become: yes
+    ansible.builtin.apt_repository:
+      repo: "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/microsoft-ubuntu-{{ ansible_distribution_release }}-prod {{ ansible_distribution_release }} main"
+      state: present
+
+  - name: Install PowerShell
+    become: yes
+    ansible.builtin.apt:
+      name: "powershell"
+      state: present
+
+  - name: Configure Git user.name and user.email
+    ansible.builtin.git_config:
+      name: "{{ item.name }}"
+      value: "{{ item.value }}"
+      scope: global
+    loop:
+      - { name: "user.name", value: "{{ git_name }}" }
+      - { name: "user.email", value: "{{ git_email }}" }
+
+  - name: Create wsl-assets directory for backup and restoration
+    ansible.builtin.file:
+      path: "~/wsl-assets"
+      state: directory
+
+  - name: Copy backup-current-directory.sh and restore-to-current-directory.sh to wsl-assets
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "~/wsl-assets/{{ item }}"
+      mode: 0755
+    loop:
+      - backup-current-directory.sh
+      - restore-to-current-directory.sh
+
+  when: ansible_os_family == "Debian"
