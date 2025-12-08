@@ -8,8 +8,7 @@
     git_name: Jim Andreasen
     git_email: jim@andreasen.dev
     
-    kubectl_version: 1.24
-    node_version: "lts/*" # NVM version identifier
+    kubectl_version: "1.33"
 
   roles:
     - dev_workstation
