@@ -19,7 +19,7 @@ ansible-galaxy collection install -r requirements.yml
 
 # Run Ansible playbook to install tools
 echo "Running Ansible playbook to install tools..."
-ansible-playbook -i hosts install_tools.yml
+ansible-playbook -Ki hosts install_tools.yml
 
 # Clean up
 popd
