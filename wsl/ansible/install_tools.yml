@@ -3,11 +3,16 @@
   hosts: localhost
   become: no  # Homebrew should not be installed as root
   gather_facts: yes
-  
+
+  vars_prompt:
+    - name: git_name
+      prompt: "Git user.name (full name)"
+      private: no
+    - name: git_email
+      prompt: "Git user.email"
+      private: no
+
   vars:
-    git_name: Jim Andreasen
-    git_email: jim@andreasen.dev
-    
     kubectl_version: "1.33"
 
   roles:
