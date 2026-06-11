@@ -11,7 +11,7 @@ elif [ ! -f "$TAR_TO_RESTORE" ]; then
   echo "No file found at path '$TAR_TO_RESTORE'. Aborting script."
   exit 1
 fi
-if [ `pwd` == ~ ]; then
+if [ "$(pwd)" == ~ ]; then
   echo "You're about to restore directly into your home directory!"
     while true; do
       read -p "Are you sure you want to do this? " yn

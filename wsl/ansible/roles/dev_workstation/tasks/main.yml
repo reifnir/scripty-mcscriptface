@@ -37,36 +37,10 @@
       nopassword: yes
       state: present
 
-  - name: Install kubectl via Homebrew
-    community.general.homebrew:
-      name: "kubernetes-cli@{{ kubectl_version }}"
-      state: present
-  - name: Check if kubectl is available
-    ansible.builtin.command:
-      cmd: which kubectl
-    register: kubectl_check
-    failed_when: false
-    changed_when: false
-
-  - name: Ensure kubectl directory is on user's PATH in ~/.bashrc
-    ansible.builtin.lineinfile:
-      path: "~/.bashrc"
-      line: "export PATH=\"/home/linuxbrew/.linuxbrew/opt/kubernetes-cli@{{ kubectl_version }}/bin:$PATH\""
-      create: yes
-      insertafter: EOF
-    when: kubectl_check.rc != 0
-
   - name: Upgrade all apt packages
     become: yes
     ansible.builtin.apt:
       upgrade: safe
-
-  - name: Add .NET previews PPA (ppa:dotnet/previews)
-    become: yes
-    ansible.builtin.apt_repository:
-      repo: 'ppa:dotnet/previews'
-      state: present
-    when: ansible_os_family == "Debian"
 
   - name: Install misc tools
     become: yes
